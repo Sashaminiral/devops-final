@@ -1,0 +1,15 @@
+---
+registry_url: "ghcr.io"
+
+# GHCR требует нижний регистр: sashaminiral, а не Sashaminiral.
+# Если в GitHub Desktop назовёте репозиторий иначе — поправьте имя после слэша.
+docker_image: "ghcr.io/sashaminiral/devops-final:latest"
+
+container_name: "pulseboard"
+host_port: 8080
+container_port: 8080
+
+# Совместимо с командами из методички (gitlab_token / GITLAB_TOKEN).
+# Для GHCR используйте GitHub PAT с правом read:packages, если пакет приватный.
+gitlab_token: "{{ lookup('env', 'GITLAB_TOKEN') | default('', true) }}"
+gitlab_username: "{{ lookup('env', 'GITLAB_USERNAME') | default('', true) }}"

@@ -1,0 +1,7 @@
+---
+- name: Deploy application from GitHub Container Registry
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - local_docker_service

@@ -1,0 +1,49 @@
+---
+- name: Login to GitHub Container Registry when a token is provided
+  community.docker.docker_login:
+    registry_url: "{{ registry_url }}"
+    username: "{{ gitlab_username }}"
+    password: "{{ gitlab_token }}"
+  when:
+    - gitlab_token | length > 0
+    - gitlab_username | length > 0
+  tags:
+    - login
+
+- name: Pull application image from GHCR
+  community.docker.docker_image:
+    name: "{{ docker_image }}"
+    source: pull
+    force_source: true
+  register: pulled_image
+  failed_when: false
+  tags:
+    - pull
+
+- name: Fail if the image is not available locally
+  community.docker.docker_image_info:
+    name:
+      - "{{ docker_image }}"
+  register: image_info
+  failed_when: image_info.images | length == 0
+  tags:
+    - pull
+
+- name: Remove previous container if it exists
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    state: absent
+    force_kill: true
+  tags:
+    - run
+
+- name: Start application container
+  community.docker.docker_container:
+    name: "{{ container_name }}"
+    image: "{{ docker_image }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ host_port }}:{{ container_port }}"
+  tags:
+    - run
